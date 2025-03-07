@@ -67,6 +67,30 @@
     z-index: 20; /* 確保不被球體擋住 */
 }
 
+@keyframes shake {
+    0% { transform: translateX(0); }
+    20% { transform: translateX(-5px); }
+    40% { transform: translateX(5px); }
+    60% { transform: translateX(-5px); }
+    80% { transform: translateX(5px); }
+    100% { transform: translateX(0); }
+}
+
+@keyframes scaleUp {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.2); }
+    100% { transform: scale(1); }
+}
+
+.shake {
+    animation: shake 0.5s ease-in-out;
+}
+
+.scaleUp {
+    animation: scaleUp 0.5s ease-in-out;
+}
+
+
     </style>
 </head>
 
@@ -354,52 +378,45 @@ function shuffle(array) {
 
 window.start3DWheel = start3DWheel;
 function spinWheel() {
-    let spinDisplay = document.getElementById("spinsLeft"); // 抓取 UI 元素
-    let resultBox = document.getElementById("result"); // 抓取結果顯示區塊
-
-    // **確保 spinsLeft 是數字，防止 NaN**
-    if (isNaN(spinsLeft) || spinsLeft === undefined) {
-        spinsLeft = 0;
-        spinDisplay.innerText = spinsLeft;
-        console.error("❌ 錯誤：spinsLeft 變成 NaN 或未定義，重置為 0");
-        return;
-    }
+    let spinButton = document.getElementById("spinButton");
 
     if (spinsLeft <= 0) {
         alert("❌ 沒有抽獎機會了！");
         return;
     }
 
-    // **修正「按一下就變 0」的錯誤**
-    let remainingSpins = spinsLeft; // 記錄按下按鈕前的次數
-    spinsLeft = Math.max(0, spinsLeft - 1); // 正確減少 1 次
+    // **按鈕動畫（晃動 + 放大縮小）**
+    spinButton.classList.add("shake");
+    spinButton.classList.add("scaleUp");
 
-    console.log(`🎡 旋轉抽獎，剩餘抽獎次數：${remainingSpins} → ${spinsLeft}`);
-    spinDisplay.innerText = spinsLeft; // 這裡要先更新 UI，確保顯示正確
+    // **0.5 秒後移除動畫**
+    setTimeout(() => {
+        spinButton.classList.remove("shake");
+        spinButton.classList.remove("scaleUp");
+    }, 500);
 
-    // **判斷是否為最後一次**
+    let remainingSpins = spinsLeft;
+    spinsLeft = Math.max(0, spinsLeft - 1);
+    document.getElementById("spinsLeft").innerText = spinsLeft;
+
     let isLastSpin = (remainingSpins === 1);
     let resultText = isLastSpin ? "🎁 恭喜你獲得：神秘禮物大獎 🎉" : "😢 謝謝惠顧，請再接再厲！";
 
     // **防止連點**
-    document.getElementById("spinButton").disabled = true;
+    spinButton.disabled = true;
 
     // **模擬旋轉動畫（黑箱作業）**
     let spinDuration = 2000; // 旋轉 2 秒
     setTimeout(() => {
         alert(resultText); // 彈出中獎結果
-        resultBox.innerText = resultText; // 顯示中獎結果
-
+        document.getElementById("result").innerText = resultText;
+        
         // **如果還有機會，啟用按鈕**
         if (spinsLeft > 0) {
-            document.getElementById("spinButton").disabled = false;
-        } else {
-            console.log("🎯 抽獎結束，沒有剩餘次數了！");
+            spinButton.disabled = false;
         }
     }, spinDuration);
 }
-
-
 
 
 </script>
