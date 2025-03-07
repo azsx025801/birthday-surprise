@@ -189,49 +189,87 @@ function start3DWheel() {
     scene.add(sphere);
     
     // **獎品名稱**
-    const giftItems = [
-    "Chanel 香水", "YSL 口紅", "Prada 包包", "Dior 化妝品", "蘋果耳機",
-    "高級下午茶", "馬殺雞", "頂級紅酒", "浪漫旅遊", "專屬攝影師",
-    "LV 錢包", "Gucci 手錶", "迪士尼樂園票", "高端 SPA", "星巴克隨行杯",
-    "現金 5000 元", "現金 10000 元", "現金 20000 元", "日本來回機票", "歐洲夢幻之旅",
-    "馬爾地夫雙人行", "韓國購物之旅", "豪華郵輪假期", "頭等艙機票", "超跑體驗",
-    "百貨公司禮券", "Apple Watch", "Switch OLED", "PS5 遊戲機", "高級紅酒品酒課",
-    "私人管家服務", "五星級酒店住宿", "個人化訂製香水", "環球影城 VIP 票", "國際高級自助餐",
-    "豪華露營體驗", "專業攝影寫真", "Helicopter 城市夜景遊覽", "高級餐廳主廚私房菜",
-    "頂級瑜珈課程", "滑雪度假村雙人行", "高級皮革定制包", "一日豪車體驗",
-    "東京迪士尼全套行程", "高端 AI 智慧家居設備", "私人健身教練 1 個月",
-    "米其林三星晚宴", "高端 SPA 年度會員", "環遊世界機票", "夢幻私人島嶼假期"
+const giftItems = [
+    "Chanel 香水", "YSL 口紅", "Prada 包包", "Dior 化妝品", "Jo Malone 香水",
+    "Tiffany & Co. 項鍊", "Dior 護膚品", "La Mer 面霜", "GUCCI 香水", "Tom Ford 口紅",
+    "SK-II 精華液", "Charlotte Tilbury 眼影盤", "Fenty Beauty 化妝組合", "Estée Lauder 精華",
+    "Hermès 絲巾", "Louis Vuitton 手提包", "Cartier 戒指", "Bvlgari 手環", "Chloé 香水",
+    "星巴克年度咖啡券", "迪士尼樂園 VIP 票", "米其林三星晚宴", "高端 SPA 會員", "馬殺雞套餐",
+    "豪華下午茶雙人組", "高級紅酒", "高端瑜珈會員", "國際精品護膚套裝", "專屬美甲設計",
+    "Prada 太陽眼鏡", "Guerlain 蜂王乳護膚品", "Dior 限量版彩妝", "Jo Malone 擴香組",
+    "日本溫泉度假", "韓國美容療程", "歐洲城堡之旅", "馬爾地夫雙人行", "巴黎浪漫之旅",
+    "峇里島豪華度假", "瑞士滑雪體驗", "義大利高端時尚購物行程", "紐約時尚週 VIP 門票",
+    "現金 5000 元", "現金 10000 元", "現金 20000 元", "百貨公司禮券 5000 元", "百貨公司禮券 10000 元",
+    "高級珠寶購物體驗", "私人造型師服務", "頂級高訂禮服租借", "專業攝影寫真", "巴黎香水博物館 VIP 參觀",
+    "Chanel 高端訂製手袋", "Dior 高級定製禮服", "LV 限量款皮夾", "Hermès 限量版包包",
+    "Burberry 風衣", "Tiffany & Co. 高端手鐲", "BVLGARI 頂級珠寶", "Fendi 鞋履",
+    "歐洲五星級酒店住宿", "倫敦下午茶體驗", "豪華郵輪假期", "環遊世界機票", "頂級健身俱樂部會員",
+    "私人廚師訂製餐點", "高端香氛課程", "日本銀座購物行程", "韓國美妝一日導覽", "巴黎時尚高訂週門票",
+    "瑞士鐘錶 VIP 體驗", "豪華高鐵旅行", "專業化妝課程", "私人皮膚顧問", "迪奧個人化彩妝定製",
+    "高端 SPA 年卡", "明星級護膚療程", "高端花藝課程", "全球機場貴賓室會員", "東京奢華購物導覽",
+    "浪漫直升機夜景飛行", "超豪華露營體驗", "奢華水療假期", "杜拜奢華之旅", "私人島嶼度假",
+    "名媛下午茶課程", "頂級婚禮策劃體驗", "精品咖啡機", "高端私人教練健身課程", "巴黎香水定製體驗",
+    "高端護膚療程", "瑞士私人滑雪課程", "維也納音樂會 VIP 票", "南法葡萄酒莊度假",
+    "高端珠寶 DIY 課程", "摩洛哥夢幻之旅", "夏威夷豪華度假", "極光之旅 VIP 票"
 ];
+
 shuffle(giftItems);
     
     // **添加 3D 文字 (改用 CanvasTexture 繪製中文字)**
     const textGroup = new THREE.Group();
+const positions = []; // 存儲已擺放的文字位置
+const minDistance = 5; // **最小間距，防止重疊**
+
 giftItems.forEach((gift, index) => {
+    // **動態調整文字大小**
+    const textLength = gift.length;
+    const planeWidth = Math.min(10, textLength * 0.6); // 根據字數動態調整寬度
+    const planeHeight = 3; // 高度固定
+
     const textMaterial = new THREE.MeshBasicMaterial({ 
-        map: createTextTexture(gift), 
+        map: createTextTexture(gift, planeWidth), 
         transparent: true, 
-        side: THREE.DoubleSide,  // **讓文字雙面可見**
-        depthTest: false  // **避免被球體遮擋**
+        side: THREE.DoubleSide,  
+        depthTest: false  
     });
-    
-    const textGeometry = new THREE.PlaneGeometry(7, 2.5); // **適當縮小文字尺寸，讓更多獎品顯示**
+
+    const textGeometry = new THREE.PlaneGeometry(planeWidth, planeHeight);
     const textMesh = new THREE.Mesh(textGeometry, textMaterial);
 
-    // **隨機分布在整個球體表面，但距離球體更近**
-    const theta = Math.acos(2 * Math.random() - 1); // 緯度角度（-90 到 90 度）
-    const phi = Math.random() * Math.PI * 2; // 經度角度（0 到 360 度）
-    const radius = 20; // **縮小半徑，讓文字更靠近球體，提升密集度**
+    let positionFound = false;
+    let newPosition;
 
-    textMesh.position.set(
-        radius * Math.sin(theta) * Math.cos(phi),
-        radius * Math.sin(theta) * Math.sin(phi),
-        radius * Math.cos(theta)
-    );
-    
-    textMesh.lookAt(new THREE.Vector3(0, 0, 0)); // **確保文字朝向球體中心**
-    textMesh.rotation.y += Math.PI; // **翻轉文字，避免反向**
-    textGroup.add(textMesh);
+    for (let attempts = 0; attempts < 100; attempts++) {
+        const u = Math.random();
+        const v = Math.random();
+        const theta = Math.acos(2 * u - 1);
+        const phi = 2 * Math.PI * v;
+        const radius = 18;
+
+        newPosition = new THREE.Vector3(
+            radius * Math.sin(theta) * Math.cos(phi),
+            radius * Math.sin(theta) * Math.sin(phi),
+            radius * Math.cos(theta)
+        );
+
+        let tooClose = positions.some(pos => newPosition.distanceTo(pos) < minDistance);
+
+        if (!tooClose) {
+            positionFound = true;
+            break;
+        }
+    }
+
+    if (positionFound) {
+        textMesh.position.copy(newPosition);
+        positions.push(newPosition);
+        textMesh.lookAt(new THREE.Vector3(0, 0, 0));
+        textMesh.rotation.y += Math.PI; 
+        textGroup.add(textMesh);
+    }
 });
+
+
 
 
     scene.add(textGroup);
@@ -259,21 +297,46 @@ giftItems.forEach((gift, index) => {
 function createTextTexture(text) {
     const canvas = document.createElement("canvas");
     const ctx = canvas.getContext("2d");
-    canvas.width = 1024; // 提高解析度
-    canvas.height = 256;
+    canvas.width = 1024;
+    canvas.height = 300; // **加大高度，允許換行**
 
-    ctx.clearRect(0, 0, canvas.width, canvas.height); // 確保背景透明
-    ctx.fillStyle = "black"; // **黑色文字，確保高對比**
-    ctx.strokeStyle = "white"; // **白色描邊，提高可讀性**
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = "rgb(255, 215, 0)"; // **金黃色字體**
+    ctx.strokeStyle = "black"; // **黑色描邊**
     ctx.lineWidth = 8;
 
-    ctx.font = "bold 140px 微軟正黑體, Arial"; // **加大字體，確保可讀**
+    let fontSize = 120;
+    if (text.length > 10) fontSize = 100; // **如果文字太長，縮小字體**
+    if (text.length > 15) fontSize = 80;  // **更長的話進一步縮小**
+
+    ctx.font = `bold ${fontSize}px 微軟正黑體, Arial`;
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
 
-    // **先描邊，然後填充文字**
-    ctx.strokeText(text, canvas.width / 2, canvas.height / 2);
-    ctx.fillText(text, canvas.width / 2, canvas.height / 2);
+    // **自動換行**
+    let maxWidth = 800; // **最大行寬**
+    let lines = [];
+    let words = text.split(" ");
+    let line = "";
+
+    for (let word of words) {
+        let testLine = line + word + " ";
+        let metrics = ctx.measureText(testLine);
+        if (metrics.width > maxWidth && line !== "") {
+            lines.push(line);
+            line = word + " ";
+        } else {
+            line = testLine;
+        }
+    }
+    lines.push(line); // 加入最後一行
+
+    // **繪製多行文字**
+    let startY = canvas.height / 2 - ((lines.length - 1) * fontSize * 0.6);
+    for (let i = 0; i < lines.length; i++) {
+        ctx.strokeText(lines[i], canvas.width / 2, startY + i * fontSize * 1.2);
+        ctx.fillText(lines[i], canvas.width / 2, startY + i * fontSize * 1.2);
+    }
 
     return new THREE.CanvasTexture(canvas);
 }
