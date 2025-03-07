@@ -3,35 +3,71 @@
 <html lang="zh-Hant">
 <head>
     <meta charset="UTF-8">
-    <title>小廖生日驚喜互動遊戲</title>
+    <title>小廖生日驚喜大挑戰🎉</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
-        body {
-            font-family: 'Microsoft JhengHei', Arial, sans-serif;
-            text-align: center;
-            padding: 20px;
-            background-color: #fff;
-            color: #333;
-        }
+        body { font-family: 'Microsoft JhengHei', Arial; background-color: #fff; text-align: center; padding: 20px; }
         h1 { color: #6a0dad; }
-        button {
-            padding: 10px 25px;
-            font-size: 18px;
-            background-color: #6a0dad;
-            color: #fff;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            margin-top: 15px;
-        }
+        button { padding: 10px 20px; font-size: 18px; background: #6a0dad; color: white; border: none; border-radius: 8px; cursor: pointer; margin-top: 20px; }
+        .hidden { display: none; }
     </style>
 </head>
 <body>
-    <h1>🎉小廖生日快樂！🎂</h1>
-    <p>專屬妳的生日驚喜已準備好，點擊以下連結開始體驗吧！</p>
-    <a href="https://azsx025801.github.io/birthday-surprise/" target="_blank">
-        <button>👉 點我開始驚喜之旅！</button>
-    </a>
-    <p style="margin-top:20px;">(為了最佳體驗，建議使用手機📱打開)</p>
+    <h1>🎈小廖生日快樂🎈</h1>
+    <div id="welcome">
+        <p>準備好迎接專屬妳的生日驚喜之旅嗎？</p>
+        <button onclick="startQuiz()">👉 點我開始驚喜之旅！</button>
+    </div>
+    <div id="quiz" class="hidden"></div>
+    <div id="wheel" class="hidden">
+        <p>抽獎時間到囉！點轉盤抽出你的禮物吧！</p>
+        <canvas id="wheelCanvas" width="300" height="300"></canvas><br>
+        <button onclick="spin()">🎡開始轉動！</button>
+        <p id="wheelResult"></p>
+    </div>
+    <div id="scratch" class="hidden">
+        <p>最後一個小驚喜，用手指刮開看看！</p>
+        <button onclick="scratch()">🎟️刮開驚喜</button>
+        <p id="scratchMsg"></p>
+    </div>
+    <div id="finalGift" class="hidden">
+        <h2>🎁真正的生日禮物來囉！🎁</h2>
+        <p>高級筆電💻 + 高級滑鼠🖱️</p>
+        <p>你永遠是我的頭獎🎖️，我永遠愛你❤️</p>
+    </div>
+
+    <script>
+        function startQuiz() {
+            document.getElementById('welcome').classList.add('hidden');
+            document.getElementById('quiz').classList.remove('hidden');
+            document.getElementById('quiz').innerHTML = "<p>心理小測驗開始囉！</p><button onclick='finishQuiz()'>完成心理測驗</button>";
+        }
+        function finishQuiz() {
+            document.getElementById('quiz').classList.add('hidden');
+            document.getElementById('wheel').classList.remove('hidden');
+            drawWheel();
+        }
+
+        const prizes = ["10萬元現金💰", "歐洲豪華雙人遊✈️", "6萬元購物金🛍️", "一年份高級餐廳套餐🍽️", "神秘特別獎🎁"];
+        let canvas = document.getElementById('wheelCanvas'), ctx = canvas.getContext('2d'), startAngle = 0, arc = Math.PI / (prizes.length / 2);
+        function drawWheel() {
+            for(let i=0;i<prizes.length;i++){
+                ctx.fillStyle=`hsl(${360*i/prizes.length},70%,80%)`;
+                ctx.beginPath();
+                ctx.arc(150,150,140,startAngle+i*arc,startAngle+(i+1)*arc); ctx.lineTo(150,150); ctx.fill();
+                ctx.save(); ctx.translate(150+Math.cos(startAngle+arc*(i+0.5))*110,150+Math.sin(startAngle+arc*(i+0.5))*110);
+                ctx.rotate(startAngle+arc*(i+0.5)+Math.PI/2); ctx.fillStyle="#333"; ctx.fillText(prizes[i],-ctx.measureText(prizes[i]).width/2,0); ctx.restore();
+            }
+        }
+        function spin() {
+            document.getElementById('wheelResult').innerText="恭喜妳獲得『神秘特別獎🎁』！";
+            setTimeout(()=>{document.getElementById('wheel').classList.add('hidden'); document.getElementById('scratch').classList.remove('hidden');},3000);
+        }
+
+        function scratch() {
+            document.getElementById('scratchMsg').innerText="我就是你的頭獎🎖️，永遠愛你❤️";
+            setTimeout(()=>{document.getElementById('scratch').classList.add('hidden');document.getElementById('finalGift').classList.remove('hidden');},2000);
+        }
+    </script>
 </body>
 </html>
