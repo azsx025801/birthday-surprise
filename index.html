@@ -23,98 +23,201 @@
         }
         .hidden { display: none; }
         canvas { margin-top: 20px; }
+        #wheelContainer {
+            position: relative;
+            display: inline-block;
+        }
+        #wheelCanvas {
+            border: 2px solid black;
+            background: white;
+            border-radius: 50%;
+        }
         #arrow {
             position: absolute;
-            top: 20px;
+            top: -10px;
             left: 50%;
             transform: translateX(-50%);
-            border-left: 20px solid transparent;
-            border-right: 20px solid transparent;
-            border-bottom: 30px solid red;
+            width: 5px;
+            height: 50px;
+            background: red;
+        }
+        #scratchCanvas {
+            background: gray;
+            cursor: pointer;
         }
     </style>
 </head>
 <body>
-
-<h2>🎉小廖生日快樂🎂</h2>
-<div id="welcome">
-    <p>準備好迎接專屬妳的生日驚喜嗎？</p>
-    <button onclick="startQuiz()">👉 點我開始驚喜之旅！</button>
-</div>
-
-<div id="quiz" class="hidden"></div>
-<div id="wheel" class="hidden">
-    <div id="arrow"></div>
-    <canvas id="wheelCanvas" width="320" height="320"></canvas>
-    <button onclick="spinWheel()">🎡 點擊轉盤抽獎</button>
-    <div id="result"></div>
-</div>
-
-<div id="scratch" class="hidden">
-    <p>用手指刮開驚喜！</p>
-    <canvas id="scratchCanvas" width="300" height="150" style="background: gray;"></canvas>
-</div>
-
-<div id="gift" class="hidden">
-    <h2>🎁真正的禮物揭曉！</h2>
-    <p>一台高級筆電💻 + 高級滑鼠🖱️</p>
-    <p>你永遠是我的頭獎，我永遠愛你❤️</p>
-</div>
-
+    <h2>🎉小廖生日快樂🎂</h2>
+    <div id="welcome">
+        <p>準備好迎接專屬妳的生日驚喜嗎？</p>
+        <button onclick="startQuiz()">👉 點我開始驚喜之旅！</button>
+    </div>
+    <div id="quiz" class="hidden"></div>
+    <div id="wheel" class="hidden">
+        <div id="wheelContainer">
+            <div id="arrow"></div>
+            <canvas id="wheelCanvas" width="300" height="300"></canvas>
+        </div>
+        <button id="spinButton" onclick="spinWheel()">🎡 點擊轉盤抽獎 (<span id="spinsLeft">0</span> 次機會)</button>
+        <div id="result"></div>
+    </div>
+    <div id="scratch" class="hidden">
+        <p>用滑鼠或手指刮開驚喜！</p>
+        <canvas id="scratchCanvas" width="300" height="150"></canvas>
+    </div>
+    <div id="gift" class="hidden">
+        <h2>🎁真正的禮物揭曉！</h2>
+        <p>一台高級筆電💻 + 高級滑鼠🖱️</p>
+        <p>你永遠是我的頭獎，我永遠愛你❤️</p>
+    </div>
 <script>
-document.addEventListener("DOMContentLoaded", function() {
-    document.getElementById("welcome").style.display = "block";
-});
+let correctAnswers = 0;
+let spinsLeft = 0;
+let spinCount = 0;
+let hasWonSpecialPrize = false;
+const prizes = ["10萬元現金", "6萬元現金", "歐洲十天雙人飛機", "神秘特別獎", "謝謝惠顧"];
+
+const questions = [
+    { q: '我們在一起到2025/3/21總共幾天了？', opts: shuffle(['1638天', '1720天', '1650天', '2000天']), ans: '1638天' },
+    { q: '2020/3/21我們在做什麼？', opts: shuffle(['吃燒肉童話','爬台北象山','陽明山看夜景','奎前女友家玩桌遊吃蛋糕']), allCorrect: true },
+    { q: '2021/3/21我們在做什麼？', opts: shuffle(['桃園X水族館吵架','日月潭度假','阿里山看日出','射飛鏢去台東']), ans: '桃園X水族館吵架' },
+    { q: '2022/3/21我們在做什麼？', opts: shuffle(['日月潭度假','阿里山看日出','桃園X水族館吵架','射飛鏢去台東']), ans: '日月潭度假' },
+    { q: '2023/3/21我們在做什麼？', opts: shuffle(['射飛鏢去台東','桃園X水族館吵架','日月潭度假','阿里山看日出']), ans: '射飛鏢去台東' }
+];
+
+function shuffle(array) {
+    return array.sort(() => Math.random() - 0.5);
+}
 
 function startQuiz() {
     document.getElementById("welcome").style.display = "none";
     document.getElementById("quiz").style.display = "block";
-    nextQuiz(0);
+    showQuestion(0);
 }
 
-const questions = [
-    { q: '我們在一起到2025/3/21總共幾天了？', opts: ['1638天', '1720天', '1650天', '2000天'], ans: '1638天' },
-    { q:'2020/3/21我們在做什麼？', opts:['吃燒肉童話','爬台北象山','陽明山看夜景','奎前女友家玩桌遊吃蛋糕'], allCorrect:true },
-    { q:'2021/3/21我們在做什麼？', opts:['桃園X水族館吵架','日月潭度假','阿里山看日出','射飛鏢去台東'], ans:'桃園X水族館吵架' },
-    { q:'2022/3/21我們在做什麼？', opts:['日月潭度假','阿里山看日出','桃園X水族館吵架','射飛鏢去台東'], ans:'日月潭度假' },
-    { q:'2023/3/21我們在做什麼？', opts:['射飛鏢去台東','桃園X水族館吵架','日月潭度假','阿里山看日出'], ans:'射飛鏢去台東' }
-];
-
-let quizIndex = 0;
-function nextQuiz(index) {
+function showQuestion(index) {
     if (index >= questions.length) {
         document.getElementById("quiz").style.display = "none";
         document.getElementById("wheel").style.display = "block";
+        spinsLeft = correctAnswers;
+        document.getElementById("spinsLeft").innerText = spinsLeft;
         drawWheel();
         return;
     }
-    const q = questions[index];
-    let content = `<h3>${q.q}</h3>`;
-    q.opts.forEach(o => {
-        content += `<button onclick="nextQuiz(${index+1})">${o}</button><br>`;
+    const question = questions[index];
+    let quizHTML = `<p>${question.q}</p>`;
+    question.opts.forEach(opt => {
+        quizHTML += `<button onclick="checkAnswer(${index}, '${opt}')">${opt}</button><br>`;
     });
-    document.getElementById("quiz").innerHTML = content;
+    document.getElementById("quiz").innerHTML = quizHTML;
+}
+
+function checkAnswer(index, answer) {
+    if (questions[index].allCorrect === true || answer === questions[index].ans) {
+        alert("小廖答對了！好聰明好棒棒！🥳");
+        correctAnswers++;
+    } else {
+        alert("答錯了！北七😂");
+    }
+    showQuestion(index + 1);
 }
 
 function drawWheel() {
-    const canvas = document.getElementById("wheelCanvas");
-    const ctx = canvas.getContext("2d");
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.fillStyle = "#FFD700";
-    ctx.beginPath();
-    ctx.arc(160, 160, 150, 0, Math.PI * 2);
-    ctx.fill();
+    let wheel = document.getElementById("wheelCanvas");
+    let ctx = wheel.getContext("2d");
+    let centerX = wheel.width / 2;
+    let centerY = wheel.height / 2;
+    let radius = wheel.width / 2;
+    let startAngle = 0;
+    let sliceAngle = (2 * Math.PI) / prizes.length;
+    const colors = ["#FFD700", "#FF4500", "#008080", "#4682B4", "#DA70D6"];
+
+    ctx.clearRect(0, 0, wheel.width, wheel.height);
+    for (let i = 0; i < prizes.length; i++) {
+        ctx.beginPath();
+        ctx.moveTo(centerX, centerY);
+        ctx.arc(centerX, centerY, radius, startAngle, startAngle + sliceAngle);
+        ctx.fillStyle = colors[i % colors.length];
+        ctx.fill();
+        ctx.stroke();
+        ctx.save();
+        ctx.translate(centerX, centerY);
+        ctx.rotate(startAngle + sliceAngle / 2);
+        ctx.fillStyle = "black";
+        ctx.font = "bold 16px Microsoft JhengHei";
+        ctx.fillText(prizes[i], radius - 90, 5);
+        ctx.restore();
+        startAngle += sliceAngle;
+    }
 }
 
 function spinWheel() {
-    document.getElementById("wheel").style.display = "none";
-    document.getElementById("scratch").style.display = "block";
+    if (spinsLeft > 0) {
+        spinsLeft--;
+        spinCount++;
+        document.getElementById("spinsLeft").innerText = spinsLeft;
+        let wheel = document.getElementById("wheelCanvas");
+        let degrees;
+        let sliceAngle = 360 / prizes.length;
+        let currentRotation = wheel.style.transform.match(/-?\d+/g);
+        let previousDegrees = currentRotation ? parseInt(currentRotation[0]) : 0;
+        let targetIndex;
+
+        if (spinsLeft === 0) {
+            targetIndex = prizes.indexOf("神秘特別獎");
+            hasWonSpecialPrize = true;
+        } else {
+            targetIndex = prizes.indexOf("謝謝惠顧");
+        }
+
+        degrees = previousDegrees + (360 * 5) + (360 - ((targetIndex + 0.5) * sliceAngle));
+        
+        wheel.style.transition = "transform 2s ease-out";
+        wheel.style.transform = `rotate(${degrees}deg)`;
+
+        setTimeout(() => {
+            let resultText = prizes[targetIndex];
+            document.getElementById("result").innerText = `恭喜獲得 ${resultText} 🎁`;
+            drawWheel(); // 重新繪製轉盤，確保畫布上的獎項與指針對應
+
+            if (spinsLeft === 0) {
+                document.getElementById("spinButton").style.display = "none";
+                let nextButton = document.createElement("button");
+                nextButton.innerText = "前往刮刮樂 🎉";
+                nextButton.onclick = function() {
+                    document.getElementById("wheel").style.display = "none";
+                    document.getElementById("scratch").style.display = "block";
+                    setupScratchCard();
+                };
+                document.getElementById("wheel").appendChild(nextButton);
+            }
+        }, 2100);
+    }
 }
 
-function scratch() {
-    document.getElementById("scratch").style.display = "none";
-    document.getElementById("gift").style.display = "block";
+function setupScratchCard() {
+    const scratchCanvas = document.getElementById("scratchCanvas");
+    const ctx = scratchCanvas.getContext("2d");
+    ctx.fillStyle = "gray";
+    ctx.fillRect(0, 0, scratchCanvas.width, scratchCanvas.height);
+    
+    let isScratched = false;
+
+    function scratch(e) {
+        if (!isScratched) {
+            ctx.clearRect(e.offsetX - 10, e.offsetY - 10, 20, 20);
+            isScratched = true;
+
+            setTimeout(() => {
+                document.getElementById("scratch").style.display = "none";
+                document.getElementById("gift").style.display = "block";
+            }, 500);
+        }
+    }
+    scratchCanvas.addEventListener("mousedown", scratch);
 }
+
 </script>
 </body>
 </html>
