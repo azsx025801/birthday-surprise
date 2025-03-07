@@ -298,23 +298,23 @@ function createTextTexture(text) {
     const canvas = document.createElement("canvas");
     const ctx = canvas.getContext("2d");
     canvas.width = 1024;
-    canvas.height = 300; // **加大高度，允許換行**
+    canvas.height = 400; // **加大高度，允許更大的文字**
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.fillStyle = "rgb(255, 215, 0)"; // **金黃色字體**
     ctx.strokeStyle = "black"; // **黑色描邊**
-    ctx.lineWidth = 8;
+    ctx.lineWidth = 10; // **加粗邊框，提高可讀性**
 
-    let fontSize = 120;
-    if (text.length > 10) fontSize = 100; // **如果文字太長，縮小字體**
-    if (text.length > 15) fontSize = 80;  // **更長的話進一步縮小**
+    let fontSize = 150;
+    if (text.length > 10) fontSize = 130; // **如果文字太長，稍微縮小**
+    if (text.length > 15) fontSize = 110;  // **更長的話進一步縮小**
 
     ctx.font = `bold ${fontSize}px 微軟正黑體, Arial`;
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
 
     // **自動換行**
-    let maxWidth = 800; // **最大行寬**
+    let maxWidth = 900; // **最大行寬，確保手機上可讀**
     let lines = [];
     let words = text.split(" ");
     let line = "";
@@ -340,7 +340,6 @@ function createTextTexture(text) {
 
     return new THREE.CanvasTexture(canvas);
 }
-
 // **確保 shuffle 可用**
 function shuffle(array) {
     return array.sort(() => Math.random() - 0.5);
