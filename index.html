@@ -12,7 +12,7 @@
         body {
             font-family: 'Microsoft JhengHei', Arial, sans-serif;
             text-align: center;
-            background-color: #fffbe6; /* 柔和黃色背景 */
+            background-color: #FFFAF0; /* 暖白 */
             margin: 0;
             padding: 20px;
             color: #4b0082; /* 深紫色字體 */
@@ -23,14 +23,14 @@
         }
         button {
             padding: 12px 24px;
-            background: linear-gradient(135deg, #ffde59, #f4a900); /* 黃色系漸變 */
+            background: linear-gradient(135deg, #FFCC00, #FF9900); /* 金橘色漸層 */
             color: #fff;
             font-size: 1.2rem;
-            border: none;
+            border: 2px solid #D48806; /* 深橙色邊框 */
             border-radius: 12px;
             cursor: pointer;
             transition: 0.3s;
-            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+            box-shadow: 0px 4px 10px rgba(255, 165, 0, 0.5); /* 柔和陰影 */
         }
         button:hover {
             background: linear-gradient(135deg, #f4a900, #ffde59);
@@ -215,33 +215,33 @@ function start3DWheel() {
     
     // **建立球體 (加到更大)**
     const geometry = new THREE.SphereGeometry(15, 64, 64); // 大球體尺寸
-    const material = new THREE.MeshStandardMaterial({ color: 0x4b0082, wireframe: true });
+    const material = new THREE.MeshStandardMaterial({ color: 0x4B0082, wireframe: true, opacity: 0.6, transparent: true });
     let sphere = new THREE.Mesh(geometry, material);
     scene.add(sphere);
     
     // **獎品名稱**
 const giftItems = [
-    "Chanel 香水", "YSL 口紅", "Prada 包包", "Dior 化妝品", "Jo Malone 香水",
-    "Tiffany & Co. 項鍊", "Dior 護膚品", "La Mer 面霜", "GUCCI 香水", "Tom Ford 口紅",
-    "SK-II 精華液", "Charlotte Tilbury 眼影盤", "Fenty Beauty 化妝組合", "Estée Lauder 精華",
-    "Hermès 絲巾", "Louis Vuitton 手提包", "Cartier 戒指", "Bvlgari 手環", "Chloé 香水",
+    "Chanel 香水", "YSL 口紅", "Prada 包包", "Dior隨便選", "高級香水",
+    "金項鍊", "Dior 護膚品", "La Mer 面霜", "GUCCI 香水", "口紅隨便買",
+    "SK-II 精華液", "美金500元", "美金1000元", "Gucci墨鏡",
+    "Hermès隨便挑", "LV隨便選", "金戒指", "Bvlgari 手環", "Chloé 香水",
     "星巴克年度咖啡券", "迪士尼樂園 VIP 票", "米其林三星晚宴", "高端 SPA 會員", "馬殺雞套餐",
     "現金77777元", "高級紅酒", "現金3萬元", "現金6666元", "專屬美甲設計",
-    "Prada 太陽眼鏡", "Guerlain 蜂王乳護膚品", "Dior 限量版彩妝", "Jo Malone 擴香組",
+    "Prada墨鏡", "現金500元", "現金200元", "現金100元",
     "日本溫泉度假", "韓國美容療程", "歐洲城堡之旅", "馬爾地夫雙人行", "巴黎浪漫之旅",
     "峇里島豪華度假", "瑞士滑雪體驗", "義大利雙人機票", "紐約雙人機票",
-    "現金 5000 元", "現金 10000 元", "現金 20000 元", "百貨公司禮券 5000 元", "百貨公司禮券 10000 元",
+    "現金 5000 元", "現金 10000 元", "現金 20000 元", "7-11禮券 5000 元", "7-11禮券 10000 元",
     "高級珠寶", "寫真照一組", "衣服隨便買", "專業攝影寫真", "現金十萬元",
-    "Chanel 高端訂製手袋", "Dior 高級定製禮服", "LV 限量款皮夾", "Hermès 限量版包包",
-    "Burberry 風衣", "Tiffany & Co. 高端手鐲", "BVLGARI 頂級珠寶", "Fendi 鞋履",
+    "Chanel隨便買", "現金一把抓", "LV 限量款皮夾", "Hermès包包",
+    "Burberry隨便挑", "親一個", "抱一下", "睡一晚",
     "歐洲五星級酒店住宿", "倫敦之旅", "豪華郵輪假期", "環遊世界機票", "現金88888元",
-    "私人廚師訂製餐點", "高級香氛", "日本銀座購物行程", "謝謝惠顧", "現金一萬元",
+    "美食吃到飽", "高級香氛", "日本機票", "謝謝惠顧", "現金一萬元",
     "瑞士之旅", "豪華高鐵旅行", "專業化妝課程", "醫美診所套餐", "精品隨便挑",
-    "高端 SPA 年卡", "明星級護膚療程", "現金20萬元", "神秘禮物大獎", "東京奢華購物之旅",
-    "體驗直升機", "超豪華露營體驗", "奢華水療假期", "杜拜奢華之旅", "私人島嶼度假",
-    "高級下午茶一份", "現金五萬元", "精品咖啡機", "高端私人教練健身課程", "現金66666元",
-    "高端護膚療程", "瑞士私人滑雪課程", "維也納音樂會之旅", "法國雙人行",
-    "現金一百元", "摩洛哥夢幻之旅", "夏威夷豪華度假", "極光之旅 VIP 票"
+    "保時捷一台", "勞力士手錶", "現金20萬元", "神秘禮物大獎", "東京奢華購物之旅",
+    "體驗直升機", "超豪華露營體驗", "奢華水療假期", "杜拜奢華之旅", "海島國家度假",
+    "高級下午茶一份", "現金五萬元", "精品咖啡機", "現金666元", "現金66666元",
+    "比特幣一顆", "瑞士雙人行", "維也納音樂會之旅", "法國雙人行",
+    "現金一百元", "摩洛哥夢幻之旅", "夏威夷豪華度假", "極光之旅"
 ];
 
 shuffle(giftItems);
@@ -264,7 +264,7 @@ giftItems.forEach((gift, index) => {
         depthTest: false  
     });
 
-    const textGeometry = new THREE.PlaneGeometry(planeWidth, planeHeight);
+    const textGeometry = new THREE.PlaneGeometry(planeWidth * 1.5, planeHeight * 1.5);
     const textMesh = new THREE.Mesh(textGeometry, textMaterial);
 
     let positionFound = false;
@@ -332,13 +332,17 @@ function createTextTexture(text) {
     canvas.height = 400; // **加大高度，允許更大的文字**
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.fillStyle = "rgb(255, 215, 0)"; // **金黃色字體**
-    ctx.strokeStyle = "black"; // **黑色描邊**
+    // **建立金色漸層效果**
+    const gradient = ctx.createLinearGradient(0, 0, canvas.width, 0);
+    gradient.addColorStop(0, "#FFD700"); // 亮金色
+    gradient.addColorStop(1, "#FFA500"); // 橙金色
+    ctx.fillStyle = gradient; // **套用漸層**
+    ctx.strokeStyle = "#5A3E1B"; // 深棕色描邊
     ctx.lineWidth = 10; // **加粗邊框，提高可讀性**
 
-    let fontSize = 150;
-    if (text.length > 10) fontSize = 130; // **如果文字太長，稍微縮小**
-    if (text.length > 15) fontSize = 110;  // **更長的話進一步縮小**
+    let fontSize = 180;
+    if (text.length > 10) fontSize = 160; // **如果文字太長，稍微縮小**
+    if (text.length > 15) fontSize = 140;  // **更長的話進一步縮小**
 
     ctx.font = `bold ${fontSize}px 微軟正黑體, Arial`;
     ctx.textAlign = "center";
@@ -466,9 +470,11 @@ document.addEventListener("DOMContentLoaded", function () {
 
         const ctx = canvas.getContext("2d");
 
-        // **填充遮罩層 (銀色)**
-        ctx.fillStyle = "#bbb";
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        // **填充遮罩層 (漸層金色 )**
+        ctx.fillStyle = ctx.createLinearGradient(0, 0, canvas.width, 0);
+        ctx.fillStyle.addColorStop(0, "#FFD700"); // 金色
+        ctx.fillStyle.addColorStop(1, "#FFA500"); // 橘金色
+
 
         // **獎品內容（刮開後顯示）**
         const finalPrize = "🎉 最大的頭獎就是我！🎉\n附贈你高級電腦設備一套❤️";
