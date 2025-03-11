@@ -379,6 +379,7 @@ function shuffle(array) {
 window.start3DWheel = start3DWheel;
 function spinWheel() {
     let spinButton = document.getElementById("spinButton");
+    let resultBox = document.getElementById("result"); // 取得結果顯示區塊
 
     if (spinsLeft <= 0) {
         alert("❌ 沒有抽獎機會了！");
@@ -409,14 +410,145 @@ function spinWheel() {
     let spinDuration = 2000; // 旋轉 2 秒
     setTimeout(() => {
         alert(resultText); // 彈出中獎結果
-        document.getElementById("result").innerText = resultText;
-        
-        // **如果還有機會，啟用按鈕**
-        if (spinsLeft > 0) {
-            spinButton.disabled = false;
+
+        // **隱藏背景的結果顯示區塊**
+        resultBox.style.display = "none";
+
+        if (isLastSpin) {
+            console.log("✅ 進入刮刮卡環節");
+            showScratchCard(); // **正確呼叫刮刮卡**
+        } else {
+            // **如果還有機會，啟用按鈕**
+            if (spinsLeft > 0) {
+                spinButton.disabled = false;
+            }
         }
     }, spinDuration);
 }
+
+
+//刮刮卡功能
+document.addEventListener("DOMContentLoaded", function () {
+    function createScratchCard() {
+        const scratchContainer = document.createElement("div");
+        scratchContainer.id = "scratchContainer";
+        scratchContainer.style.position = "fixed";
+        scratchContainer.style.top = "0";
+        scratchContainer.style.left = "0";
+        scratchContainer.style.width = "100vw";
+        scratchContainer.style.height = "100vh";
+        scratchContainer.style.display = "flex";
+        scratchContainer.style.alignItems = "center";
+        scratchContainer.style.justifyContent = "center";
+        scratchContainer.style.backgroundColor = "#fff";
+        scratchContainer.style.zIndex = "20";
+        scratchContainer.style.flexDirection = "column";
+
+        // **顯示獎品文字區域**
+        const prizeText = document.createElement("div");
+        prizeText.id = "prizeText";
+        prizeText.innerText = "🎁 刮開神秘禮物！ 🎁"; // **刮開前的預設文字**
+        prizeText.style.fontSize = "24px";
+        prizeText.style.fontWeight = "bold";
+        prizeText.style.textAlign = "center";
+        prizeText.style.marginBottom = "20px";
+
+        // **Canvas (刮刮卡)**
+        const canvas = document.createElement("canvas");
+        canvas.id = "scratchCanvas";
+        canvas.width = 400;
+        canvas.height = 200;
+        canvas.style.cursor = "pointer"; // 鼠標指標提示可刮
+        scratchContainer.appendChild(prizeText);
+        scratchContainer.appendChild(canvas);
+
+        document.body.appendChild(scratchContainer);
+
+        const ctx = canvas.getContext("2d");
+
+        // **填充遮罩層 (銀色)**
+        ctx.fillStyle = "#bbb";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        // **獎品內容（刮開後顯示）**
+        const finalPrize = "🎉 最大的頭獎就是我！🎉\n附贈你高級電腦設備一套❤️";
+
+        let isDrawing = false;
+        let clearedPixels = 0;
+        const totalPixels = canvas.width * canvas.height;
+        const threshold = 0.8; // 刮開 80% 才顯示獎品
+
+        function clearScratchArea(x, y) {
+            ctx.globalCompositeOperation = "destination-out";
+            ctx.beginPath();
+            ctx.arc(x, y, 15, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.globalCompositeOperation = "source-over";
+        }
+
+        function checkClearPercentage() {
+            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            let transparentPixels = 0;
+
+            for (let i = 3; i < imageData.data.length; i += 4) {
+                if (imageData.data[i] === 0) {
+                    transparentPixels++;
+                }
+            }
+
+            clearedPixels = transparentPixels;
+            if (clearedPixels / totalPixels >= threshold) {
+                revealPrize();
+            }
+        }
+
+        function revealPrize() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.globalCompositeOperation = "source-over";
+            prizeText.innerText = finalPrize; // **更新顯示真正獎品**
+        }
+
+        // **事件監聽（滑鼠）**
+        canvas.addEventListener("mousedown", (e) => {
+            isDrawing = true;
+            clearScratchArea(e.offsetX, e.offsetY);
+        });
+
+        canvas.addEventListener("mousemove", (e) => {
+            if (!isDrawing) return;
+            clearScratchArea(e.offsetX, e.offsetY);
+            checkClearPercentage();
+        });
+
+        canvas.addEventListener("mouseup", () => {
+            isDrawing = false;
+        });
+
+        // **事件監聽（觸控）**
+        canvas.addEventListener("touchstart", (e) => {
+            isDrawing = true;
+            const rect = canvas.getBoundingClientRect();
+            const touch = e.touches[0];
+            clearScratchArea(touch.clientX - rect.left, touch.clientY - rect.top);
+        });
+
+        canvas.addEventListener("touchmove", (e) => {
+            if (!isDrawing) return;
+            const rect = canvas.getBoundingClientRect();
+            const touch = e.touches[0];
+            clearScratchArea(touch.clientX - rect.left, touch.clientY - rect.top);
+            checkClearPercentage();
+        });
+
+        canvas.addEventListener("touchend", () => {
+            isDrawing = false;
+        });
+    }
+
+    window.showScratchCard = function () {
+        createScratchCard();
+    };
+});
 
 
 </script>
