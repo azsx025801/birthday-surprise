@@ -470,11 +470,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
         const ctx = canvas.getContext("2d");
 
-        // **填充遮罩層 (漸層金色 )**
-        ctx.fillStyle = ctx.createLinearGradient(0, 0, canvas.width, 0);
-        ctx.fillStyle.addColorStop(0, "#FFD700"); // 金色
-        ctx.fillStyle.addColorStop(1, "#FFA500"); // 橘金色
-
+        // **填充遮罩層 (金色漸層)**
+        const gradient = ctx.createLinearGradient(0, 0, canvas.width, 0);
+        gradient.addColorStop(0, "#FFD700"); // 亮金色
+        gradient.addColorStop(1, "#FFA500"); // 橘金色
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
 
         // **獎品內容（刮開後顯示）**
         const finalPrize = "🎉 最大的頭獎就是我！🎉\n附贈你高級電腦設備一套❤️";
@@ -482,14 +483,13 @@ document.addEventListener("DOMContentLoaded", function () {
         let isDrawing = false;
         let clearedPixels = 0;
         const totalPixels = canvas.width * canvas.height;
-        const threshold = 0.8; // 刮開 80% 才顯示獎品
+        const threshold = 0.8; // **刮開 80% 才顯示獎品**
 
         function clearScratchArea(x, y) {
-            ctx.globalCompositeOperation = "destination-out";
+            ctx.globalCompositeOperation = "destination-out"; // 讓畫筆變成「橡皮擦」
             ctx.beginPath();
-            ctx.arc(x, y, 15, 0, Math.PI * 2);
+            ctx.arc(x, y, 20, 0, Math.PI * 2);
             ctx.fill();
-            ctx.globalCompositeOperation = "source-over";
         }
 
         function checkClearPercentage() {
